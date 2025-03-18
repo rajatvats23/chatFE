@@ -8,7 +8,7 @@ $text-muted: #6c757d;
 $chat-blue: #5c6bc0;
 $message-bg: #f5f7fb;
 
-// New customized colors
+// New customized colors to match design
 $panel-bg-color: #EFF1FE;
 $selected-chat-bg: #323C7A;
 $prominent-border: #D1D5F0;
@@ -31,6 +31,16 @@ $prominent-border: #D1D5F0;
   border-right: 2px solid $prominent-border;
   display: flex;
   flex-direction: column;
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+  
+  // For mobile view
+  &.collapsed {
+    @media (max-width: 768px) {
+      transform: translateX(-100%);
+      position: absolute;
+      z-index: 10;
+    }
+  }
 }
 
 .conversations-header {
@@ -84,6 +94,13 @@ $prominent-border: #D1D5F0;
   }
 }
 
+// Breadcrumbs styling
+.breadcrumbs {
+  font-size: 12px;
+  color: $text-muted;
+  border-bottom: 1px solid $prominent-border;
+}
+
 .conversations-sections {
   flex: 1;
   overflow-y: auto;
@@ -95,6 +112,7 @@ $prominent-border: #D1D5F0;
 
   .section-header {
     padding: 8px 16px;
+    cursor: pointer;
     
     .section-title {
       font-size: 11px;
@@ -106,7 +124,6 @@ $prominent-border: #D1D5F0;
     i {
       font-size: 12px;
       color: $text-muted;
-      cursor: pointer;
     }
   }
 }
@@ -470,5 +487,93 @@ $prominent-border: #D1D5F0;
   
   .chat-panel {
     width: 100%;
+  }
+}
+
+// Vertical sidebar styles (left edge)
+.vertical-sidebar {
+  width: 60px;
+  background-color: white;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 0;
+  
+  .sidebar-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    &.active {
+      background-color: $panel-bg-color;
+      color: $primary-color;
+    }
+  }
+  
+  .sidebar-divider {
+    width: 40px;
+    height: 1px;
+    background-color: $border-color;
+    margin: 10px 0;
+  }
+}
+
+// User profile section in header
+.user-profile {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 20px;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+  }
+  
+  .user-name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// Notification badge
+.notification-badge {
+  position: relative;
+  
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #f44336;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

@@ -1,30 +1,14 @@
 // chat-landing.component.ts
-import { Component, OnInit, HostListener } from '@angular/core';
-
-interface User {
-  id: number;
-  name: string;
-  organization?: string;
-  avatar?: string;
-  isVerified: boolean;
-  unreadCount?: number;
-  initials: string;
-}
-
-interface Message {
-  id: number;
-  userId: number;
-  content: string;
-  timestamp: string;
-  isRead: boolean;
-}
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { ChatService, Message, User } from '../chat.service';
 
 @Component({
   selector: 'app-chat-landing',
   templateUrl: './chat-landing.component.html',
   styleUrls: ['./chat-landing.component.scss']
 })
-export class ChatLandingComponent implements OnInit {
+export class ChatLandingComponent implements OnInit, OnDestroy {
   title = 'Vital Imaging';
   searchQuery = '';
   currentMessage = '';
@@ -32,95 +16,30 @@ export class ChatLandingComponent implements OnInit {
   windowWidth = window.innerWidth;
   isMobile = false;
 
+  // Navigation breadcrumbs
+  breadcrumbs: string[] = ['Dashboard', 'Conversations'];
+  
+  // Panel collapse state
+  isIncomingMessagesCollapsed = false;
+  isDirectMessagesCollapsed = false;
+  isLeftPanelCollapsed = false;
+
+  // Current user (logged in user)
   currentUser: User = {
-    id: 1,
-    name: 'PCP',
-    avatar: 'assets/images/avatar-doctor.png',
+    id: 999,
+    name: 'John',
     isVerified: false,
-    initials: 'PCP'
+    initials: 'J'
   };
 
-  // Users with pre-calculated initials
-  users: User[] = [
-    { 
-      id: 1, 
-      name: 'Carlos', 
-      organization: 'Canohealth', 
-      isVerified: false,
-      unreadCount: 3,
-      initials: 'C'
-    },
-    { 
-      id: 2, 
-      name: 'Abel', 
-      organization: 'CCMC', 
-      isVerified: false,
-      unreadCount: 1,
-      initials: 'A'
-    },
-    { 
-      id: 3, 
-      name: 'Shikha', 
-      organization: 'CareMax', 
-      isVerified: false,
-      unreadCount: 2,
-      initials: 'S'
-    },
-    { 
-      id: 4, 
-      name: 'Deepika', 
-      organization: 'Conviva', 
-      isVerified: false,
-      unreadCount: 1,
-      initials: 'D'
-    }
-  ];
-
-  directUsers: User[] = [
-    { 
-      id: 5, 
-      name: 'Jeremy Firow', 
-      isVerified: false,
-      initials: 'JF'
-    },
-    { 
-      id: 6, 
-      name: 'Maria June', 
-      isVerified: true,
-      unreadCount: 2,
-      initials: 'MJ'
-    },
-    { 
-      id: 7, 
-      name: 'Emil Anders', 
-      isVerified: false,
-      initials: 'EA'
-    },
-    { 
-      id: 8, 
-      name: 'Markus Gavrilov', 
-      isVerified: false,
-      initials: 'MG'
-    }
-  ];
-
-  activeConversation: User = {
-    id: 4,
-    name: 'Deepika Sharma',
-    organization: 'PCP, Conviva',
-    isVerified: true,
-    initials: 'DS'
-  };
-
-  messages: Message[] = [
-    {
-      id: 1,
-      userId: 4,
-      content: 'Irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.',
-      timestamp: '12:49 PM',
-      isRead: true
-    }
-  ];
+  // Chat data from service
+  users: User[] = [];
+  directUsers: User[] = [];
+  activeConversation!: User;
+  messages: Message[] = [];
+  
+  // Subscription to manage observable cleanup
+  private chatSubscription!: Subscription;
 
   @HostListener('window:resize', ['$event'])
   onResize() {
@@ -128,41 +47,63 @@ export class ChatLandingComponent implements OnInit {
     this.checkIfMobile();
   }
 
-  constructor() {}
+  constructor(private chatService: ChatService) {}
 
   ngOnInit(): void {
     // Check if mobile on init
     this.checkIfMobile();
+    
+    // Subscribe to chat state changes
+    this.chatSubscription = this.chatService.chatState$.subscribe(state => {
+      this.users = state.users;
+      this.directUsers = state.directUsers;
+      this.activeConversation = state.activeConversation!;
+      this.messages = state.messages;
+      this.hasJoinedChat = state.hasJoinedChat;
+      
+      // Update breadcrumbs when active conversation changes
+      this.updateBreadcrumbs();
+    });
+  }
+  
+  ngOnDestroy(): void {
+    // Clean up subscription when component is destroyed
+    if (this.chatSubscription) {
+      this.chatSubscription.unsubscribe();
+    }
   }
 
   checkIfMobile(): void {
     this.isMobile = this.windowWidth < 768;
+    // Auto-collapse panel on mobile
+    if (this.isMobile) {
+      this.isLeftPanelCollapsed = true;
+    }
   }
 
   selectChat(user: User): void {
-    this.activeConversation = user;
-    console.log('Selected chat:', user.name);
+    // Use the service to update active conversation
+    this.chatService.setActiveConversation(user);
     
-    // If mobile, switch to chat view
+    // If mobile, collapse the left panel to show chat view
     if (this.isMobile) {
-      // Logic to show chat view on mobile would go here
+      this.isLeftPanelCollapsed = true;
+    }
+  }
+
+  updateBreadcrumbs(): void {
+    if (this.activeConversation) {
+      this.breadcrumbs = ['Dashboard', 'Conversations', this.activeConversation.name];
+    } else {
+      this.breadcrumbs = ['Dashboard', 'Conversations'];
     }
   }
 
   sendMessage(): void {
     if (this.currentMessage.trim() === '') return;
     
-    // Create a new message
-    const newMessage = {
-      id: this.messages.length + 1,
-      userId: this.currentUser.id,
-      content: this.currentMessage,
-      timestamp: this.formatCurrentTime(),
-      isRead: false
-    };
-    
-    // Add the message to the list
-    this.messages.push(newMessage);
+    // Use the service to send the message
+    this.chatService.sendMessage(this.currentMessage, this.currentUser.id);
     
     // Clear the input field
     this.currentMessage = '';
@@ -177,9 +118,8 @@ export class ChatLandingComponent implements OnInit {
   }
 
   joinChat(): void {
-    // Toggle the join state
-    this.hasJoinedChat = true;
-    console.log('Joining chat with', this.activeConversation.name);
+    // Use the service to join chat
+    this.chatService.joinChat();
     
     // Focus on the message input field
     setTimeout(() => {
@@ -211,9 +151,22 @@ export class ChatLandingComponent implements OnInit {
     return userId === this.currentUser.id;
   }
   
-  // For mobile navigation
-  goBack(): void {
-    // Logic to navigate back on mobile
-    console.log('Go back');
+  // Toggles for sections
+  toggleIncomingMessages(): void {
+    this.isIncomingMessagesCollapsed = !this.isIncomingMessagesCollapsed;
+  }
+  
+  toggleDirectMessages(): void {
+    this.isDirectMessagesCollapsed = !this.isDirectMessagesCollapsed;
+  }
+  
+  // For mobile navigation and panel toggle
+  toggleLeftPanel(): void {
+    this.isLeftPanelCollapsed = !this.isLeftPanelCollapsed;
+  }
+  
+  // For navigation back to the conversations list on mobile
+  showConversationsList(): void {
+    this.isLeftPanelCollapsed = false;
   }
 }

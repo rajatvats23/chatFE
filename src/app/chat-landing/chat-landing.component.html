@@ -1,13 +1,25 @@
 <!-- chat-landing.component.html -->
 <div class="chat-app-container">
   <!-- Left panel (conversations list) -->
-  <div class="conversations-panel">
+  <div class="conversations-panel" [class.collapsed]="isLeftPanelCollapsed">
     <div class="conversations-header">
       <div class="d-flex justify-content-between align-items-center px-3 py-2">
-        <h6 class="mb-0">All Conversations</h6>
-        <div class="back-icon">
+        <div class="d-flex align-items-center">
+          <h6 class="mb-0">{{ title }}</h6>
+        </div>
+        <div class="back-icon d-md-none" (click)="toggleLeftPanel()">
           <i class="bi bi-chevron-left"></i>
         </div>
+      </div>
+      
+      <!-- Breadcrumbs for navigation -->
+      <div class="breadcrumbs px-3 py-1">
+        <span *ngFor="let crumb of breadcrumbs; let i = index; let last = last">
+          <ng-container *ngIf="i > 0">
+            <span class="text-muted mx-1">></span>
+          </ng-container>
+          <span [class.active]="last">{{ crumb }}</span>
+        </span>
       </div>
       
       <!-- Search box -->
@@ -23,11 +35,11 @@
     <div class="conversations-sections">
       <!-- Incoming messages section -->
       <div class="conversation-section">
-        <div class="section-header d-flex justify-content-between align-items-center">
+        <div class="section-header d-flex justify-content-between align-items-center" (click)="toggleIncomingMessages()">
           <span class="section-title">INCOMING MESSAGES</span>
-          <i class="bi bi-chevron-down"></i>
+          <i class="bi" [ngClass]="isIncomingMessagesCollapsed ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
         </div>
-        <div class="conversation-list">
+        <div class="conversation-list" [hidden]="isIncomingMessagesCollapsed">
           <div *ngFor="let user of users" 
               class="conversation-item" 
               [class.active]="activeConversation.id === user.id"
@@ -48,11 +60,11 @@
       
       <!-- Direct messages section -->
       <div class="conversation-section">
-        <div class="section-header d-flex justify-content-between align-items-center">
+        <div class="section-header d-flex justify-content-between align-items-center" (click)="toggleDirectMessages()">
           <span class="section-title">DIRECT MESSAGES</span>
-          <i class="bi bi-chevron-down"></i>
+          <i class="bi" [ngClass]="isDirectMessagesCollapsed ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
         </div>
-        <div class="conversation-list">
+        <div class="conversation-list" [hidden]="isDirectMessagesCollapsed">
           <div *ngFor="let user of directUsers" 
               class="conversation-item"
               [class.active]="activeConversation.id === user.id"
@@ -79,7 +91,7 @@
   <div class="chat-panel">
     <!-- Chat header -->
     <div class="chat-header d-flex align-items-center">
-      <div class="back-icon d-md-none me-2">
+      <div class="back-icon d-md-none me-2" (click)="showConversationsList()">
         <i class="bi bi-chevron-left"></i>
       </div>
 
@@ -108,39 +120,42 @@
     <!-- Chat messages -->
     <div class="chat-messages-container">
       <div class="message-list">
-        <!-- Other user's message -->
-        <div class="message-row">
-          <div class="message-avatar">
-            <div class="avatar">{{ activeConversation.initials }}</div>
-          </div>
-          <div class="message-content-wrapper">
-            <div class="message-sender">
-              <span class="sender-name">{{ activeConversation.name }}</span>
-              <span *ngIf="activeConversation.isVerified" class="verified-badge small">
-                <i class="bi bi-patch-check-fill"></i>
-              </span>
-              <span class="message-time">• {{ messages[0].timestamp }}</span>
+        <!-- Messages from conversation -->
+        <div *ngFor="let message of messages" class="message-row" [class.user-message-row]="isUserMessage(message.userId)">
+          <!-- Other user's message -->
+          <ng-container *ngIf="!isUserMessage(message.userId)">
+            <div class="message-avatar">
+              <div class="avatar">{{ activeConversation.initials }}</div>
             </div>
-            <div class="message-bubble other-message">
-              {{ messages[0].content }}
+            <div class="message-content-wrapper">
+              <div class="message-sender">
+                <span class="sender-name">{{ activeConversation.name }}</span>
+                <span *ngIf="activeConversation.isVerified" class="verified-badge small">
+                  <i class="bi bi-patch-check-fill"></i>
+                </span>
+                <span class="message-time">• {{ message.timestamp }}</span>
+              </div>
+              <div class="message-bubble other-message">
+                {{ message.content }}
+              </div>
             </div>
-          </div>
-        </div>
+          </ng-container>
 
-        <!-- Current user's message (if joined) -->
-        <div *ngIf="hasJoinedChat" class="message-row user-message-row">
-          <div class="message-content-wrapper ms-auto">
-            <div class="message-sender text-end">
-              <span class="message-time me-1">{{ formatCurrentTime() }}</span>
-              <span class="sender-name">Me</span>
+          <!-- Current user's message -->
+          <ng-container *ngIf="isUserMessage(message.userId)">
+            <div class="message-content-wrapper ms-auto">
+              <div class="message-sender text-end">
+                <span class="message-time me-1">{{ message.timestamp }}</span>
+                <span class="sender-name">Me</span>
+              </div>
+              <div class="message-bubble user-message">
+                {{ message.content }}
+              </div>
             </div>
-            <div class="message-bubble user-message">
-              Hi! How can I help you today? Could you be more specific with referral?
+            <div class="message-avatar">
+              <div class="avatar">{{ currentUser.initials }}</div>
             </div>
-          </div>
-          <div class="message-avatar">
-            <div class="avatar">{{ currentUser.initials }}</div>
-          </div>
+          </ng-container>
         </div>
       </div>
     </div>

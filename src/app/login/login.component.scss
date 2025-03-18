@@ -1,0 +1,166 @@
+/* login.component.scss */
+$primary-color: #3f51b5;
+$light-bg: #f8f9fa;
+$border-color: #e9ecef;
+$panel-bg-color: #EFF1FE;
+$selected-chat-bg: #323C7A;
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: $panel-bg-color;
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    
+    .logo {
+      height: 60px;
+      width: auto;
+    }
+  }
+  
+  .login-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: $selected-chat-bg;
+    margin-bottom: 8px;
+  }
+  
+  .login-subtitle {
+    color: #6c757d;
+    font-size: 16px;
+  }
+}
+
+.login-form {
+  .form-label {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .input-group {
+    .input-group-text {
+      background-color: $light-bg;
+      border-right: none;
+      
+      i {
+        color: #6c757d;
+      }
+    }
+    
+    .form-control {
+      border-left: none;
+      
+      &:focus {
+        box-shadow: none;
+        border-color: $border-color;
+      }
+      
+      &:focus + .input-group-text {
+        border-color: $border-color;
+      }
+    }
+    
+    .password-toggle {
+      cursor: pointer;
+      border-left: none;
+      background-color: white;
+      
+      &:hover {
+        background-color: $light-bg;
+      }
+    }
+  }
+  
+  .forgot-password-link {
+    font-size: 14px;
+    color: $primary-color;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  .btn-primary {
+    background-color: $selected-chat-bg;
+    border-color: $selected-chat-bg;
+    padding: 10px 16px;
+    font-weight: 500;
+    transition: all 0.2s;
+    
+    &:hover, &:focus {
+      background-color: darken($selected-chat-bg, 10%);
+      border-color: darken($selected-chat-bg, 10%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:disabled {
+      background-color: lighten($selected-chat-bg, 20%);
+      border-color: lighten($selected-chat-bg, 20%);
+    }
+  }
+}
+
+.login-footer {
+  font-size: 14px;
+  color: #6c757d;
+  
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Validation styling
+.invalid-feedback {
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+  background-image: none;
+}
+
+// Animation for loading
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinner-border {
+  animation: spin 1s linear infinite;
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .login-card {
+    padding: 25px;
+  }
+}

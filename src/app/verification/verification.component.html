@@ -1,0 +1,60 @@
+<!-- verification.component.html -->
+<div class="verification-container">
+    <div class="verification-card">
+      <!-- Logo and Header -->
+      <div class="verification-header">
+        <div class="logo-container">
+          <img src="assets/images/logo.png" alt="Vital Imaging Logo" class="logo">
+        </div>
+        <h1 class="verification-title">Verification Required</h1>
+        <p class="verification-subtitle">Enter the 4-digit code sent to your email or phone</p>
+      </div>
+  
+      <!-- Error message display -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+  
+      <!-- Verification Form -->
+      <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="verification-form">
+        <!-- OTP field -->
+        <div class="form-group mb-4">
+          <label for="otp" class="form-label">Verification Code</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-shield-lock"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="otp" 
+              formControlName="otp"
+              placeholder="Enter 4-digit code"
+              [class.is-invalid]="otpControl?.invalid && otpControl?.touched"
+              maxlength="4"
+            >
+          </div>
+          <div *ngIf="otpControl?.invalid && otpControl?.touched" class="invalid-feedback d-block">
+            {{ otpError }}
+          </div>
+        </div>
+  
+        <!-- Submit button -->
+        <button 
+          type="submit" 
+          class="btn btn-primary w-100" 
+          [disabled]="verifyForm.invalid || isSubmitting"
+        >
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Verify
+        </button>
+      </form>
+  
+      <!-- Footer -->
+      <div class="verification-footer mt-4 text-center">
+        <p class="mb-0">
+          Didn't receive a code? <a href="#">Resend Code</a>
+        </p>
+      </div>
+    </div>
+  </div>
