@@ -1,0 +1,62 @@
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Dashboard</h1>
+      <button class="refresh-btn" (click)="refreshData()" [disabled]="loading">
+        <span class="material-icons">refresh</span>
+        Refresh
+      </button>
+    </div>
+  
+    <!-- Loading and error states -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading dashboard data...</p>
+    </div>
+  
+    <div *ngIf="error && !loading" class="error-container">
+      <div class="error-icon">⚠️</div>
+      <p>Failed to load dashboard data. Please try again later.</p>
+      <button class="retry-btn" (click)="refreshData()">Retry</button>
+    </div>
+  
+    <!-- Dashboard stats summary -->
+    <div *ngIf="!loading && !error" class="stats-container">
+      <div class="stat-card">
+        <div class="stat-value">{{totalItems}}</div>
+        <div class="stat-label">Total Systems</div>
+      </div>
+      <div class="stat-card status-active">
+        <div class="stat-value">{{activeItems}}</div>
+        <div class="stat-label">Active</div>
+      </div>
+      <div class="stat-card status-warning">
+        <div class="stat-value">{{warningItems}}</div>
+        <div class="stat-label">Warnings</div>
+      </div>
+      <div class="stat-card status-error">
+        <div class="stat-value">{{errorItems}}</div>
+        <div class="stat-label">Errors</div>
+      </div>
+    </div>
+  
+    <!-- Dashboard items -->
+    <div *ngIf="!loading && !error" class="dashboard-items">
+      <div *ngFor="let item of dashboardItems" class="dashboard-item">
+        <div class="item-header">
+          <h3>{{item.title}}</h3>
+          <span class="status-indicator" [ngClass]="getStatusClass(item.status)"></span>
+        </div>
+        <div class="item-description">{{item.description}}</div>
+        <div class="item-footer">
+          <span class="last-updated">Last updated: {{item.lastUpdated | date:'medium'}}</span>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Empty state -->
+    <div *ngIf="!loading && !error && dashboardItems.length === 0" class="empty-state">
+      <div class="empty-icon">📊</div>
+      <p>No dashboard items available.</p>
+    </div>
+  </div>
