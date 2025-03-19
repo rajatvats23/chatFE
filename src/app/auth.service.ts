@@ -197,6 +197,10 @@ export class AuthService {
     this.currentUserSubject.next(user);
   }
 
+  saveTokenAfterVerify(token: string) {
+    localStorage.setItem(this.tokenKey, token);
+  }
+  
   private hasValidToken(): boolean {
     const token = localStorage.getItem(this.tokenKey);
     // In a real application, you might want to check if the token is expired

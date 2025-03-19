@@ -5,6 +5,54 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { AuthService, VerifyRequest } from '../auth.service';
 
+export interface VerificationInterface {
+  message: string
+  response: Response
+}
+
+export interface Response {
+  _id: string
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  contact: Contact
+  pharmacyId: any
+  dob: string
+  profilePic: string
+  address: Address
+  deviceType: string
+  deviceToken: string
+  isLogin: boolean
+  socketId: string
+  isDeleted: boolean
+  isBlocked: boolean
+  createdBy: any
+  updatedBy: string
+  uniqueId: string
+  licenseInfo: any[]
+  payrollHistory: any[]
+  createdAt: string
+  updatedAt: string
+  __v: number
+  role: string
+  token: string
+}
+
+export interface Contact {
+  countryCode: string
+  mobileNumber: string
+}
+
+export interface Address {
+  address: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+}
+
+
 @Component({
   selector: 'app-verification',
   templateUrl: './verification.component.html',
@@ -56,7 +104,8 @@ export class VerificationComponent implements OnInit {
         finalize(() => this.isSubmitting = false)
       )
       .subscribe({
-        next: () => {
+        next: (response: VerificationInterface) => {
+          this.authService.saveTokenAfterVerify(response.response.token);
           // Navigate to the protected area after successful verification
           this.router.navigate(['/chat']);
         },
